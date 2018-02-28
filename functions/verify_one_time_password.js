@@ -11,7 +11,7 @@ module.exports = function(req, res) {
   admin.auth().getUser(phone)
     .then(() => {
       const ref = admin.database().ref('users/' + phone);
-      ref.admin.database().ref('users/' + phone).on('value', snapshot => {
+      ref.on('value', snapshot => {
         ref.off();
         const user = snapshot.val();
 
@@ -22,14 +22,9 @@ module.exports = function(req, res) {
         ref.update({ codeValid: false });
 
         admin.auth().createCustomToken(phone)
-          .then(token => {
-            return res.send({ token: token })
-          })
-          .catch((err) => {
-            res.status(422).send({ error: err })
-          });
+          .then(token => res.send({ token: token }));
 
       });
     })
-    .catch((err) => res.status(422).send({ errorOut: err }));
+    .catch((err) => res.status(422).send({ error: err }));
 }
